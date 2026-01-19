@@ -8,7 +8,7 @@
         :root {
             --bg: #000000;
             --card-bg: #0a0a0a;
-            --accent-glow: #00ffc4; /* Неоновый бирюзовый */
+            --accent-glow: #00ffc4;
             --glitch-red: #ff0055;
             --glitch-blue: #0055ff;
             --text-main: #e0e0e0;
@@ -19,75 +19,18 @@
             margin: 0; padding: 0; width: 100%; height: 100%;
             background-color: var(--bg);
             color: var(--text-main);
-            font-family: 'Press Start 2P', cursive; /* Добавим пиксельный шрифт для дерзости */
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
             overflow: hidden;
             display: flex; justify-content: center; align-items: center;
         }
 
-        /* Чтобы использовать "Press Start 2P" */
-        @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
-
-        /* Общая стилизация для глитча */
-        .glitch-text {
-            position: relative;
-            font-size: 5vw; /* Адаптивный размер */
-            text-transform: uppercase;
-            font-weight: bold;
-            color: var(--text-main);
-            text-shadow: 0 0 10px var(--accent-glow);
-        }
-
-        .glitch-text::before,
-        .glitch-text::after {
-            content: attr(data-text);
-            position: absolute;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            background: var(--bg);
-        }
-
-        .glitch-text::before {
-            left: 2px;
-            text-shadow: -2px 0 var(--glitch-red);
-            animation: glitch-anim-1 2s infinite linear alternate-reverse;
-        }
-
-        .glitch-text::after {
-            left: -2px;
-            text-shadow: -2px 0 var(--glitch-blue);
-            animation: glitch-anim-2 2s infinite linear alternate-reverse;
-        }
-
-        /* Анимации для глитча */
-        @keyframes glitch-anim-1 {
-            0% { clip-path: inset(45% 0 35% 0); }
-            20% { clip-path: inset(20% 0 60% 0); }
-            40% { clip-path: inset(80% 0 10% 0); }
-            60% { clip-path: inset(10% 0 70% 0); }
-            80% { clip-path: inset(65% 0 15% 0); }
-            100% { clip-path: inset(30% 0 50% 0); }
-        }
-
-        @keyframes glitch-anim-2 {
-            0% { clip-path: inset(25% 0 55% 0); }
-            15% { clip-path: inset(70% 0 10% 0); }
-            30% { clip-path: inset(5% 0 85% 0); }
-            45% { clip-path: inset(40% 0 40% 0); }
-            60% { clip-path: inset(15% 0 75% 0); }
-            75% { clip-path: inset(85% 0 5% 0); }
-            90% { clip-path: inset(50% 0 30% 0); }
-            100% { clip-path: inset(20% 0 60% 0); }
-        }
-
-        /* Канвас для фрагментов на весь экран */
+        /* Канвас для фрагментов */
         #fragmentCanvas {
             position: absolute; top: 0; left: 0; z-index: 10;
             pointer-events: none;
-            filter: drop-shadow(0 0 8px var(--accent-glow)); /* Добавим свечение фрагментам */
+            filter: drop-shadow(0 0 8px var(--accent-glow));
         }
 
-        /* Контейнер приложения (имитация мобилки) */
         .app-container {
             position: relative;
             width: 100%; max-width: 400px; height: 100%;
@@ -95,14 +38,14 @@
             display: flex; flex-direction: column;
             padding: 20px; box-sizing: border-box;
             z-index: 5;
-            border-radius: 30px; /* Более округлые края */
+            border-radius: 30px;
             border: 4px solid #333;
-            box-shadow: 0 0 60px rgba(0,255,196,0.3); /* Общее свечение */
-            overflow: hidden; /* Важно для фрагментов */
+            box-shadow: 0 0 60px rgba(0,255,196,0.3);
+            overflow: hidden;
         }
 
         .header { margin-top: 40px; text-align: center; }
-        .header h1 { font-size: 16px; color: var(--text-dim); text-transform: uppercase; letter-spacing: 2px; }
+        .header h1 { font-size: 14px; color: var(--text-dim); text-transform: uppercase; letter-spacing: 2px; }
 
         .amount-display {
             font-size: 56px; font-weight: 800; text-align: center; margin: 20px 0;
@@ -117,205 +60,8 @@
             border-radius: 20px; padding: 24px;
             border: 1px solid #1a1a1a; margin-bottom: auto;
             box-shadow: inset 0 0 10px rgba(0,0,0,0.5);
+            transition: opacity 0.3s;
         }
 
         .detail-row { margin-bottom: 16px; }
-        .detail-row:last-child { margin-bottom: 0; }
-        .label { font-size: 12px; color: var(--text-dim); margin-bottom: 4px; }
-        .value { font-size: 18px; font-weight: 500; color: var(--text-main); }
-
-        /* Кнопка с более агрессивным дизайном */
-        .action-btn {
-            background: linear-gradient(90deg, #00ffc4, #00b0ff); /* Градиент */
-            color: var(--bg); border: none; border-radius: 15px;
-            padding: 22px; font-size: 18px; font-weight: 800;
-            cursor: pointer; position: relative;
-            transition: transform 0.1s;
-            overflow: hidden;
-            letter-spacing: 1px;
-            box-shadow: 0 0 30px rgba(0,255,196,0.5);
-            -webkit-mask-image: -webkit-radial-gradient(white, black); /* Сглаживание шрифтов на градиенте */
-        }
-
-        .action-btn:active { transform: scale(0.95); box-shadow: 0 0 15px rgba(0,255,196,0.8); }
-
-        /* Финальный экран успеха */
-        .success-state {
-            position: absolute; inset: 0;
-            display: flex; flex-direction: column; justify-content: center; align-items: center;
-            opacity: 0; pointer-events: none; z-index: 20; /* Выше чем фрагменты */
-            transition: opacity 0.4s ease;
-            background: rgba(0,0,0,0.8); /* Затемнение фона */
-        }
-
-        .success-state.active { opacity: 1; }
-
-        .success-text-container {
-            position: relative;
-            text-align: center;
-        }
-
-        .success-text {
-            font-family: 'Press Start 2P', cursive;
-            font-size: 3.5vw; /* Больше и адаптивнее */
-            color: var(--accent-glow);
-            text-shadow: 0 0 15px var(--accent-glow), 0 0 30px rgba(0,255,196,0.6);
-            letter-spacing: 3px;
-            animation: success-pulse 1.5s infinite alternate;
-            z-index: 2;
-            position: relative;
-        }
-
-        @keyframes success-pulse {
-            0% { transform: scale(1); text-shadow: 0 0 10px var(--accent-glow), 0 0 20px rgba(0,255,196,0.4); }
-            100% { transform: scale(1.05); text-shadow: 0 0 20px var(--accent-glow), 0 0 40px rgba(0,255,196,0.8); }
-        }
-
-        /* Эффект мерцающего фона для успеха */
-        .success-bg-glow {
-            position: absolute;
-            width: 150%; height: 150%;
-            background: radial-gradient(circle at center, rgba(0,255,196,0.2) 0%, transparent 70%);
-            animation: glow-rotate 10s infinite linear;
-            z-index: 1;
-        }
-
-        @keyframes glow-rotate {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(360deg); }
-        }
-
-        .info-message {
-            margin-top: 20px; font-size: 14px; color: var(--text-dim);
-            animation: fade-in 1s ease forwards 0.5s;
-            opacity: 0;
-        }
-        @keyframes fade-in { 0% { opacity: 0; transform: translateY(10px); } 100% { opacity: 1; transform: translateY(0); } }
-    </style>
-</head>
-<body>
-
-    <canvas id="fragmentCanvas"></canvas>
-
-    <div class="app-container" id="app">
-        <div class="header">
-            <h1>Transfer to Nikita</h1>
-        </div>
-        <div class="amount-display" data-text="2 400 ₽">2 400 ₽</div>
-        
-        <div class="transfer-details">
-            <div class="detail-row">
-                <div class="label">Card Origin</div>
-                <div class="value">•••• 8841</div>
-            </div>
-            <div class="detail-row">
-                <div class="label">Fee</div>
-                <div class="value" style="color: var(--accent-glow);">0 ₽</div>
-            </div>
-        </div>
-
-        <button class="action-btn" id="mainBtn">CONFIRM & SEND</button>
-
-        <div class="success-state" id="successScreen">
-            <div class="success-bg-glow"></div>
-            <div class="success-text-container">
-                <div class="success-text glitch-text" data-text="SUCCESS">SUCCESS</div>
-            </div>
-            <p class="info-message">Funds have been digitized.</p>
-        </div>
-    </div>
-
-<script>
-const fragmentCanvas = document.getElementById('fragmentCanvas');
-const fCtx = fragmentCanvas.getContext('2d');
-const btn = document.getElementById('mainBtn');
-const app = document.getElementById('app');
-const successScreen = document.getElementById('successScreen');
-const amountDisplay = document.querySelector('.amount-display');
-
-let fragments = [];
-fragmentCanvas.width = window.innerWidth;
-fragmentCanvas.height = window.innerHeight;
-
-class Fragment {
-    constructor(x, y, color) {
-        this.x = x; this.y = y;
-        this.color = color;
-        this.width = Math.random() * 20 + 10;
-        this.height = Math.random() * 20 + 10;
-        this.vx = (Math.random() - 0.5) * 40; // Очень высокая начальная скорость
-        this.vy = (Math.random() - 0.5) * 40;
-        this.life = 1;
-        this.decay = Math.random() * 0.05 + 0.02;
-        this.rotation = Math.random() * Math.PI * 2;
-        this.rotationSpeed = (Math.random() - 0.5) * 0.5;
-    }
-    update() {
-        this.x += this.vx;
-        this.y += this.vy;
-        this.vx *= 0.93; // Более быстрое затухание скорости
-        this.vy *= 0.93;
-        this.life -= this.decay;
-        this.rotation += this.rotationSpeed;
-    }
-    draw() {
-        fCtx.save();
-        fCtx.globalAlpha = this.life;
-        fCtx.translate(this.x, this.y);
-        fCtx.rotate(this.rotation);
-        fCtx.fillStyle = this.color;
-        fCtx.fillRect(-this.width / 2, -this.height / 2, this.width, this.height);
-        fCtx.restore();
-    }
-}
-
-function burstFragments(x, y, count = 150) {
-    const colors = ['#00ffc4', '#00e5ff', '#ffffff']; // Яркие, неоновые цвета
-    for(let i=0; i<count; i++) {
-        fragments.push(new Fragment(x, y, colors[Math.floor(Math.random()*colors.length)]));
-    }
-}
-
-function animateFragments() {
-    fCtx.clearRect(0, 0, fragmentCanvas.width, fragmentCanvas.height);
-    fragments = fragments.filter(f => f.life > 0);
-    fragments.forEach(f => { f.update(); f.draw(); });
-    requestAnimationFrame(animateFragments);
-}
-
-btn.addEventListener('click', () => {
-    // Получаем позицию кнопки, чтобы фрагменты вылетали из нее
-    const rect = btn.getBoundingClientRect();
-    const x = rect.left + rect.width / 2;
-    const y = rect.top + rect.height / 2;
-    
-    // Мощный взрыв фрагментов
-    burstFragments(x, y);
-
-    // Скрываем элементы интерфейса, чтобы казалось, что они "разлетелись"
-    btn.style.opacity = '0';
-    btn.style.pointerEvents = 'none';
-    document.querySelector('.transfer-details').style.opacity = '0';
-    amountDisplay.style.opacity = '0';
-    document.querySelector('.header').style.opacity = '0';
-
-
-    // Через короткое время показываем экран успеха с "глитч-текстом"
-    setTimeout(() => {
-        successScreen.classList.add('active');
-        // Дополнительный взрыв из центра для усиления эффекта
-        burstFragments(window.innerWidth/2, window.innerHeight/2, 50);
-    }, 150); // Очень быстрое переключение
-
-    // Возможно, сброс состояния для повторного использования, если это одноразовый скрин
-    // setTimeout(() => {
-    //     app.classList.remove('success'); // Или что-то подобное для сброса
-    // }, 2000);
-});
-
-animateFragments();
-window.onresize = () => {
-    fragmentCanvas.width = window.innerWidth;
-    fragmentCanvas.height = window.innerHeight;
-};
-</script>
+        .label { font-size:
