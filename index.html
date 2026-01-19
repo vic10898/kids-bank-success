@@ -3,65 +3,138 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Digital Anarchy: Success Breakout</title>
+    <title>Bank Success</title>
     <style>
-        :root {
-            --bg: #000000;
-            --card-bg: #0a0a0a;
-            --accent-glow: #00ffc4;
-            --glitch-red: #ff0055;
-            --glitch-blue: #0055ff;
-            --text-main: #e0e0e0;
-            --text-dim: #555555;
-        }
-
         body, html {
             margin: 0; padding: 0; width: 100%; height: 100%;
-            background-color: var(--bg);
-            color: var(--text-main);
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            overflow: hidden;
-            display: flex; justify-content: center; align-items: center;
+            background: #000; color: #fff;
+            font-family: -apple-system, sans-serif;
+            overflow: hidden; display: flex; justify-content: center; align-items: center;
         }
 
-        /* Канвас для фрагментов */
-        #fragmentCanvas {
-            position: absolute; top: 0; left: 0; z-index: 10;
-            pointer-events: none;
-            filter: drop-shadow(0 0 8px var(--accent-glow));
+        #canvas {
+            position: absolute; top: 0; left: 0; z-index: 10; pointer-events: none;
         }
 
-        .app-container {
-            position: relative;
-            width: 100%; max-width: 400px; height: 100%;
-            background: var(--card-bg);
-            display: flex; flex-direction: column;
-            padding: 20px; box-sizing: border-box;
-            z-index: 5;
-            border-radius: 30px;
-            border: 4px solid #333;
-            box-shadow: 0 0 60px rgba(0,255,196,0.3);
-            overflow: hidden;
+        .phone-mockup {
+            position: relative; width: 90%; max-width: 360px; height: 80vh;
+            background: #0a0a0a; border: 2px solid #222; border-radius: 30px;
+            display: flex; flex-direction: column; padding: 20px; box-sizing: border-box;
+            z-index: 5; box-shadow: 0 20px 50px rgba(0,0,0,1);
         }
 
-        .header { margin-top: 40px; text-align: center; }
-        .header h1 { font-size: 14px; color: var(--text-dim); text-transform: uppercase; letter-spacing: 2px; }
+        .header { text-align: center; color: #555; font-size: 12px; margin-top: 20px; text-transform: uppercase; }
+        .amount { font-size: 48px; font-weight: 800; text-align: center; margin: 20px 0; color: #00ffc4; }
 
-        .amount-display {
-            font-size: 56px; font-weight: 800; text-align: center; margin: 20px 0;
-            background: linear-gradient(to top, var(--accent-glow), #ffffff);
-            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-            text-shadow: 0 0 20px var(--accent-glow);
-            letter-spacing: -2px;
+        .card {
+            background: #111; border-radius: 20px; padding: 20px;
+            border: 1px solid #222; margin-bottom: auto;
         }
 
-        .transfer-details {
-            background: var(--card-bg);
-            border-radius: 20px; padding: 24px;
-            border: 1px solid #1a1a1a; margin-bottom: auto;
-            box-shadow: inset 0 0 10px rgba(0,0,0,0.5);
-            transition: opacity 0.3s;
+        .label { font-size: 10px; color: #555; margin-bottom: 5px; text-transform: uppercase; }
+        .value { font-size: 16px; margin-bottom: 15px; }
+
+        .btn {
+            background: #00ffc4; color: #000; border: none; border-radius: 15px;
+            padding: 20px; font-size: 18px; font-weight: 800; cursor: pointer;
+            transition: transform 0.1s; z-index: 20;
+        }
+        .btn:active { transform: scale(0.95); }
+
+        /* Экран успеха */
+        .success-overlay {
+            position: absolute; inset: 0; background: #000;
+            display: none; flex-direction: column; justify-content: center; align-items: center;
+            z-index: 100; text-align: center;
         }
 
-        .detail-row { margin-bottom: 16px; }
-        .label { font-size:
+        .success-title {
+            font-size: 50px; font-weight: 900; color: #00ffc4;
+            text-shadow: 0 0 20px #00ffc4; margin: 0;
+        }
+
+        .success-sub { color: #555; margin-top: 10px; font-size: 14px; }
+    </style>
+</head>
+<body>
+
+    <canvas id="canvas"></canvas>
+
+    <div class="phone-mockup" id="ui-container">
+        <div class="header">Перевод Никите</div>
+        <div class="amount">2 400 ₽</div>
+        
+        <div class="card">
+            <div class="label">Получатель</div>
+            <div class="value">Никита К.</div>
+            <div class="label">С карты</div>
+            <div class="value">•••• 8841</div>
+        </div>
+
+        <button class="btn" id="goBtn">ОТПРАВИТЬ</button>
+
+        <div class="success-overlay" id="doneScreen">
+            <h1 class="success-title">ГОТОВО!</h1>
+            <p class="success-sub">Деньги уже на счету</p>
+        </div>
+    </div>
+
+<script>
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+    const btn = document.getElementById('goBtn');
+    const done = document.getElementById('doneScreen');
+    let particles = [];
+
+    function resize() {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+    }
+    window.onresize = resize;
+    resize();
+
+    class Box {
+        constructor(x, y) {
+            this.x = x; this.y = y;
+            this.w = Math.random() * 30 + 10;
+            this.h = Math.random() * 10 + 5;
+            this.vx = (Math.random() - 0.5) * 40;
+            this.vy = (Math.random() - 0.5) * 40;
+            this.life = 1;
+        }
+        draw() {
+            ctx.globalAlpha = this.life;
+            ctx.fillStyle = Math.random() > 0.5 ? '#00ffc4' : '#fff';
+            ctx.fillRect(this.x, this.y, this.w, this.h);
+        }
+        update() {
+            this.x += this.vx; this.y += this.vy;
+            this.life -= 0.02;
+        }
+    }
+
+    function loop() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        particles.forEach((p, i) => {
+            p.update(); p.draw();
+            if(p.life <= 0) particles.splice(i, 1);
+        });
+        requestAnimationFrame(loop);
+    }
+    loop();
+
+    btn.onclick = () => {
+        const r = btn.getBoundingClientRect();
+        for(let i=0; i<80; i++) particles.push(new Box(r.left + r.width/2, r.top));
+        
+        btn.style.visibility = 'hidden';
+        
+        setTimeout(() => {
+            done.style.display = 'flex';
+            // Второй взрыв из центра экрана
+            for(let i=0; i<100; i++) particles.push(new Box(window.innerWidth/2, window.innerHeight/2));
+        }, 200);
+    };
+</script>
+</body>
+</html>
