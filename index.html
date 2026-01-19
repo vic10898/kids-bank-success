@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>TeenBank Success Experience</title>
+    <style>
+        :root {
+            --bg: #000000;
+            --card-bg: #121214;
+            --accent: #00ff88; /* Яркий неоновый зеленый */
+            --purple: #8a2be2;
+            --text-main: #ffffff;
+            --text-dim: #666666;
+        }
+
+        body, html {
+            margin: 0; padding: 0; width: 100%; height: 100%;
+            background-color: var(--bg);
+            color: var(--text-main);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            overflow: hidden;
+            display: flex; justify-content: center; align-items: center;
+        }
+
+        /* Канвас для частиц на весь экран */
+        #canvas {
+            position: absolute; top: 0; left: 0; z-index: 10;
+            pointer-events: none; /* Чтобы не мешал кликам */
+        }
+
+        /* Контейнер приложения (имитация мобилки) */
+        .app-container {
+            position: relative;
+            width: 100%; max-width: 400px; height: 100%;
+            background: var(--bg);
+            display: flex; flex-direction: column;
+            padding: 20px; box-sizing: border-box;
+            z-index: 5;
+        }
+
+        .header { margin-top: 40px; text-align: center; }
+        .header h1 { font-size: 16px; color: var(--text-dim); text-transform: uppercase; letter-spacing: 2px; }
+
+        .amount-display {
+            font-size: 56px; font-weight: 800; text-align: center; margin: 20px 0;
+            background: linear-gradient(to bottom, #fff, #888);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        }
+
+        .transfer-details {
+            background: var(--card-bg);
+            border-radius: 24px; padding: 24px;
+            border: 1px solid #222; margin-bottom: auto;
+        }
+
+        .detail-row { margin-bottom: 16px; }
+        .detail-row:last-child { margin-bottom: 0; }
+        .label { font-size: 12px; color: var(--text-dim); margin-bottom: 4px; }
+        .value { font-size: 18px; font-weight: 500; }
+
+        /* Кнопка с эффектом пульсации */
+        .action-btn {
+            background: var(--text-main);
+            color: black; border: none; border-radius: 20px;
+            padding: 22px; font-size: 18px; font-weight: 700;
+            cursor: pointer; position: relative;
+            transition: transform 0.1s;
+            overflow: hidden;
+        }
+
+        .action-btn:active { transform: scale(0.96); }
+
+        /* Финальный экран успеха */
+        .success-state {
+            position: absolute; inset: 0;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            opacity: 0; pointer-events: none; z-index: 15;
+            transition: opacity 0.4s ease;
+        }
+
+        .success-state.active { opacity: 1; }
+
+        .success-circle {
+            width: 100px; height: 100px; background: var(--accent);
+            border-radius: 50%; display: flex; justify-content: center; align-items: center;
+            font-size: 50px; color: black; box-shadow: 0 0 50px var(--accent);
+            margin-bottom: 20px; transform: scale(0);
+        }
+
+        @keyframes circle-pop {
+            0% { transform: scale(0) rotate(-45deg); }
+            70% { transform: scale(1.2) rotate(10deg); }
+            100% { transform: scale(1) rotate(0); }
+        }
+
+        .active .success-circle { animation: circle-pop 0.6s cubic-bezier(0.17, 0.89, 0.32, 1.49) forwards; }
+    </style>
+</head>
+<body>
+
+    <canvas id="canvas"></canvas>
+
+    <div class="app-container" id="app">
+        <div class="header"><h1>Перевод Никите</h1></div>
+        <div class="amount-display">2 400 ₽</div>
+        
+        <div class="transfer-details">
+            <div class="detail-row">
+                <div class="label">Карта списания</div>
+                <div class="value">•••• 8841</div>
+            </div>
+            <div class="detail-row">
+                <div class="label">Комиссия</div>
+                <div class="value" style="color: var(--accent);">0 ₽</div>
+            </div>
+        </div>
+
+        <button class="action-btn" id="mainBtn">ПОДТВЕРДИТЬ</button>
+
+        <div class="success-state" id="successScreen">
+            <div class="success-circle">✓</div>
+            <h2 style="font-size: 32px; margin: 0;">УЛЕТЕЛО!</h2>
+            <p style="color: var(--text-dim);">Никита получит пуш через секунду</p>
+        </div>
+    </div>
+
+<script>
+const canvas = document.getElementById('canvas');
+const ctx = canvas.getContext('2d');
+const btn = document.getElementById('mainBtn');
+const app = document.getElementById('app');
+const success = document.getElementById('successScreen');
+
+let particles = [];
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+
+class Particle {
+    constructor(x, y, color) {
+        this.x = x; this.y = y;
+        this.color = color;
+        this.size = Math.random() * 6 + 2;
+        // Гипербола: очень высокая начальная скорость
+        const angle = Math.random() * Math.PI * 2;
+        const force = Math.random() * 20 + 5;
+        this.vx = Math.cos(angle) * force;
+        this.vy = Math.sin(angle) * force;
+        this.life = 1;
+        this.decay = Math.random() * 0.02 + 0.005;
+    }
+    update() {
+        this.x += this.vx;
+        this.y += this.vy;
+        this.vx *= 0.95; // трение
+        this.vy *= 0.95;
+        this.life -= this.decay;
+    }
+    draw() {
+        ctx.fillStyle = this.color;
+        ctx.globalAlpha = this.life;
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+        ctx.fill();
+    }
+}
+
+function burst(x, y) {
+    const colors = ['#00ff88', '#8a2be2', '#ffffff', '#00e5ff'];
+    for(let i=0; i<200; i++) {
+        particles.push(new Particle(x, y, colors[Math.floor(Math.random()*colors.length)]));
+    }
+}
+
+function animate() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    particles = particles.filter(p => p.life > 0);
+    particles.forEach(p => { p.update(); p.draw(); });
+    requestAnimationFrame(animate);
+}
+
+btn.addEventListener('click', (e) => {
+    const rect = btn.getBoundingClientRect();
+    const x = rect.left + rect.width / 2;
+    const y = rect.top + rect.height / 2;
+    
+    // Эффект взрыва
+    burst(x, y);
+    
+    // Прячем интерфейс и показываем успех
+    btn.style.display = 'none';
+    document.querySelector('.transfer-details').style.opacity = '0.2';
+    document.querySelector('.amount-display').style.opacity = '0.2';
+    
+    setTimeout(() => {
+        success.classList.add('active');
+        // Повторный взрыв из центра для вау-эффекта
+        burst(window.innerWidth/2, window.innerHeight/2);
+    }, 200);
+});
+
+animate();
+window.onresize = () => {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+};
+</script>
+</body>
+</html>
