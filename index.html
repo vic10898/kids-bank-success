@@ -3,138 +3,45 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Bank Success</title>
+    <title>BOOM Success</title>
     <style>
-        body, html {
-            margin: 0; padding: 0; width: 100%; height: 100%;
-            background: #000; color: #fff;
-            font-family: -apple-system, sans-serif;
-            overflow: hidden; display: flex; justify-content: center; align-items: center;
-        }
-
-        #canvas {
-            position: absolute; top: 0; left: 0; z-index: 10; pointer-events: none;
-        }
-
-        .phone-mockup {
-            position: relative; width: 90%; max-width: 360px; height: 80vh;
-            background: #0a0a0a; border: 2px solid #222; border-radius: 30px;
-            display: flex; flex-direction: column; padding: 20px; box-sizing: border-box;
-            z-index: 5; box-shadow: 0 20px 50px rgba(0,0,0,1);
-        }
-
-        .header { text-align: center; color: #555; font-size: 12px; margin-top: 20px; text-transform: uppercase; }
-        .amount { font-size: 48px; font-weight: 800; text-align: center; margin: 20px 0; color: #00ffc4; }
-
-        .card {
-            background: #111; border-radius: 20px; padding: 20px;
-            border: 1px solid #222; margin-bottom: auto;
-        }
-
-        .label { font-size: 10px; color: #555; margin-bottom: 5px; text-transform: uppercase; }
-        .value { font-size: 16px; margin-bottom: 15px; }
-
-        .btn {
-            background: #00ffc4; color: #000; border: none; border-radius: 15px;
-            padding: 20px; font-size: 18px; font-weight: 800; cursor: pointer;
-            transition: transform 0.1s; z-index: 20;
-        }
-        .btn:active { transform: scale(0.95); }
-
-        /* Экран успеха */
-        .success-overlay {
-            position: absolute; inset: 0; background: #000;
-            display: none; flex-direction: column; justify-content: center; align-items: center;
-            z-index: 100; text-align: center;
-        }
-
-        .success-title {
-            font-size: 50px; font-weight: 900; color: #00ffc4;
-            text-shadow: 0 0 20px #00ffc4; margin: 0;
-        }
-
-        .success-sub { color: #555; margin-top: 10px; font-size: 14px; }
-    </style>
-</head>
-<body>
-
-    <canvas id="canvas"></canvas>
-
-    <div class="phone-mockup" id="ui-container">
-        <div class="header">Перевод Никите</div>
-        <div class="amount">2 400 ₽</div>
+        body, html { margin: 0; padding: 0; width: 100%; height: 100%; background: #000; overflow: hidden; font-family: 'Arial Black', sans-serif; }
         
-        <div class="card">
-            <div class="label">Получатель</div>
-            <div class="value">Никита К.</div>
-            <div class="label">С карты</div>
-            <div class="value">•••• 8841</div>
-        </div>
+        /* Слой для тряски всего интерфейса */
+        #shaker { width: 100%; height: 100%; display: flex; justify-content: center; align-items: center; transition: transform 0.1s; }
 
-        <button class="btn" id="goBtn">ОТПРАВИТЬ</button>
+        #canvas { position: absolute; top: 0; left: 0; z-index: 100; pointer-events: none; }
 
-        <div class="success-overlay" id="doneScreen">
-            <h1 class="success-title">ГОТОВО!</h1>
-            <p class="success-sub">Деньги уже на счету</p>
-        </div>
-    </div>
+        .ui-layer { position: relative; text-align: center; z-index: 10; width: 100%; }
 
-<script>
-    const canvas = document.getElementById('canvas');
-    const ctx = canvas.getContext('2d');
-    const btn = document.getElementById('goBtn');
-    const done = document.getElementById('doneScreen');
-    let particles = [];
-
-    function resize() {
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
-    }
-    window.onresize = resize;
-    resize();
-
-    class Box {
-        constructor(x, y) {
-            this.x = x; this.y = y;
-            this.w = Math.random() * 30 + 10;
-            this.h = Math.random() * 10 + 5;
-            this.vx = (Math.random() - 0.5) * 40;
-            this.vy = (Math.random() - 0.5) * 40;
-            this.life = 1;
-        }
-        draw() {
-            ctx.globalAlpha = this.life;
-            ctx.fillStyle = Math.random() > 0.5 ? '#00ffc4' : '#fff';
-            ctx.fillRect(this.x, this.y, this.w, this.h);
-        }
-        update() {
-            this.x += this.vx; this.y += this.vy;
-            this.life -= 0.02;
-        }
-    }
-
-    function loop() {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        particles.forEach((p, i) => {
-            p.update(); p.draw();
-            if(p.life <= 0) particles.splice(i, 1);
-        });
-        requestAnimationFrame(loop);
-    }
-    loop();
-
-    btn.onclick = () => {
-        const r = btn.getBoundingClientRect();
-        for(let i=0; i<80; i++) particles.push(new Box(r.left + r.width/2, r.top));
+        .amount { font-size: 80px; font-weight: 900; color: #fff; margin-bottom: 20px; letter-spacing: -4px; }
         
-        btn.style.visibility = 'hidden';
-        
-        setTimeout(() => {
-            done.style.display = 'flex';
-            // Второй взрыв из центра экрана
-            for(let i=0; i<100; i++) particles.push(new Box(window.innerWidth/2, window.innerHeight/2));
-        }, 200);
-    };
-</script>
-</body>
-</html>
+        .confirm-btn {
+            background: #fff; color: #000; border: none; padding: 30px 60px;
+            font-size: 24px; font-weight: 900; text-transform: uppercase;
+            cursor: pointer; transform: skew(-10deg);
+            box-shadow: 10px 10px 0 #00ffc4;
+            transition: 0.1s;
+        }
+
+        .confirm-btn:active { transform: skew(-10deg) scale(0.9) translate(5px, 5px); box-shadow: 0 0 0 #00ffc4; }
+
+        /* Вспышка */
+        #flash { position: absolute; inset: 0; background: #fff; opacity: 0; z-index: 200; pointer-events: none; }
+
+        /* Финальный текст */
+        #status {
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0);
+            font-size: 100px; color: #00ffc4; text-align: center; line-height: 0.8;
+            z-index: 150; pointer-events: none; transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            text-shadow: 10px 10px 0 #fff;
+        }
+
+        .shake-anim { animation: shake 0.2s infinite; }
+        @keyframes shake {
+            0% { transform: translate(2px, 1px) rotate(0deg); }
+            20% { transform: translate(-1px, -2px) rotate(-1deg); }
+            40% { transform: translate(-3px, 0px) rotate(1deg); }
+            60% { transform: translate(3px, 2px) rotate(0deg); }
+            80% { transform: translate(1px, -1px) rotate(1deg); }
+            100% {
